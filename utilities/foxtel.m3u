@@ -1,0 +1,28 @@
+#EXTM3U
+#EXTINF:0,501 - 501
+#EXTMYTHTV:xmltvid=14909
+udp://192.168.1.1:55555?fifo_size=100000&buffer_size=10000000
+#EXTM3U
+#EXTINF:0,502 - 502
+#EXTMYTHTV:xmltvid=14909
+udp://192.168.1.1:55555?fifo_size=100000&buffer_size=10000000
+#EXTM3U
+#EXTINF:0,503 - 503
+#EXTMYTHTV:xmltvid=14909
+udp://192.168.1.1:55555?fifo_size=100000&buffer_size=10000000
+#EXTM3U
+#EXTINF:0,504 - 504
+#EXTMYTHTV:xmltvid=14909
+udp://192.168.1.1:55555?fifo_size=100000&buffer_size=10000000
+#EXTM3U
+#EXTINF:0,505 - 505
+#EXTMYTHTV:xmltvid=14909
+udp://192.168.1.1:55555?fifo_size=100000&buffer_size=10000000
+#EXTM3U
+#EXTINF:0,506 - 506
+#EXTMYTHTV:xmltvid=14909
+udp://192.168.1.1:55555?fifo_size=100000&buffer_size=10000000
+#EXTM3U
+#EXTINF:0,507 - 507
+#EXTMYTHTV:xmltvid=14909
+udp://192.168.1.1:55555?fifo_size=100000&buffer_size=10000000

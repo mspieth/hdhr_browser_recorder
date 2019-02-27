@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+#
+# Parse a Services API response to check the encoder status
+#
+
+import urllib2
+from xml.etree import cElementTree as ET
+from optparse import OptionParser
+
+#trigger variable to check if no CardID was found 
+found=0 
+
+
+# Parse the command Line 
+
+parser = OptionParser()
+
+parser.add_option("-b", "--backend", dest="backend_addr",
+        help="Specify the hostname or IP address of the backend. Default  = localhost",
+        metavar="Backend_Master", default="localhost")
+parser.add_option("-e", "--encoder", dest="encoder_number", type="int",
+        help="Specify the Encoder Card ID", metavar="CardID")
+
+(options, args) = parser.parse_args()
+
+GET_URL='http://'+options.backend_addr+':6544/Dvr/GetEncoderList'
+
+
+try:
+    get_response = ET.parse(urllib2.urlopen(GET_URL))
+except:
+    raise SystemExit('GetEncoderList failed. Is the backend running at the hostname/address provided?')
+
+for element in get_response.findall('Encoders/Encoder'): 
+    id = element.findtext('Id')
+    state = element.findtext('State')
+    if int(id) == options.encoder_number :
+        found = 1
+        if ( state == '0' ):
+            print 'Idle'
+        elif ( state == '1' ):
+            print 'WatchingLiveTV' 
+        elif ( state == '6' ):
+            print 'WatchingRecording' 
+        elif ( state == '7' ):
+            print 'Recording' 
+        elif ( state == '8' ):
+            print 'ChangingState' 
+        elif ( state == '-1' ):
+            print 'Error' 
+
+if ( found == 0 ): 
+    raise SystemExit('Encoder Unknown to the specified MythTV backend. Please validate the encoder/CardID number')
