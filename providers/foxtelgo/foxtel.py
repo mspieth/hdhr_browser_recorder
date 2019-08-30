@@ -511,26 +511,26 @@ class Foxtel(object):
 
     async def _home_menu(self):
         if not await self.page.querySelector('#root > div > div > div.menu-bar-container > '
-                                             'div > div > div.left-section > div.menu-item.f-menu.active.Home'):
+                                             'div > div > div.left-section > div.menu-item.f-menu.active.HOME'):
             # note the word ".active" is inserted just before the menu item if it is the active screen
             await self._click_and_wait(
                 '#root > div > div > div.menu-bar-container > '
-                'div > div > div.left-section > div.menu-item.f-menu.Home')
-            await self.page.waitForSelector('div.menu-item.f-menu.active.Home')
-            await self.page.waitForSelector('div.menu-item.f-menu.Live.TV')
+                'div > div > div.left-section > div.menu-item.f-menu.HOME')
+            await self.page.waitForSelector('div.menu-item.f-menu.active.HOME')
+            await self.page.waitForSelector('div.menu-item.f-menu.LIVE')
             await self._stop_reload_timer()
             await self._stop_hover_timer()
 
     async def _livetv_menu(self):
-        if not await self.page.querySelector('div.menu-item.f-menu.active.Live.TV'):
+        if not await self.page.querySelector('div.menu-item.f-menu.active.LIVE'):
             # '#root > div > div > div.menu-bar-container > div > div > '\
             # 'div.left-section > div.menu-item.f-menu.active.Live.TV'):
             logger.info('Y')
-            await self._click_and_wait('div.menu-item.f-menu.f-menu.Live.TV')
+            await self._click_and_wait('div.menu-item.f-menu.f-menu.LIVE')
             # '#root > div > div > div.menu-bar-container > div > div > '
             # 'div.left-section > div.menu-item.f-menu.Live.TV')
             logger.info('Z')
-            await self.page.waitForSelector('div.menu-item.f-menu.active.Live.TV')
+            await self.page.waitForSelector('div.menu-item.f-menu.active.LIVE')
             logger.info('A')
             await self.page.waitForSelector('#player > div > div.quarter-screen')
             # <g id="Video-player---VOD-movie"
@@ -593,13 +593,16 @@ class Foxtel(object):
                 if self.state in [self.State.LIVETV, self.State.FSLIVETV]:
                     await self._stop_heartbeat()
                     if not await self.page.querySelector(f'div.synopsis-container > div.title-image > img[alt="{channel}."'):
+                        # channel_selector = await self.page.xpath(f'//div[@class="channel-image"]/img[@alt="{channel}"]/../../..')
                         channel_selector = await self.page.xpath(f'//div[@class="channel-image"]/img[@alt="{channel}"]/../../..')
-                        # logger.info(f'channel change selector {channel_selector}')
+                        logger.info(f'channel change selector {channel_selector}')
                         if channel_selector and channel_selector[0]:
+                            logger.info('clicking...')
                             # await self._click_and_wait_element_handle(channel_selector[0])
-                            await channel_selector[0].click()
+                            await channel_selector[0].click(delay=500)
                             # await self.page.xpath(f'//div[@class="synopsis-container"]/div[@class=""]/img[alt=""]')
                             await self.page.waitForSelector(f'div.synopsis-container > div.title-image > img[alt="{channel}."]')
+                            logger.info('detected changed channel')
                             # await self.page.waitForSelector('#player > div > div.quarter-screen')
                             # await self.page.waitForSelector('span.fullscreen-toggle')
                             await asyncio.sleep(1)  # TODO: replace with current channel detection

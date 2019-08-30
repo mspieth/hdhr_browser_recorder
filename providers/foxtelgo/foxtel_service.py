@@ -286,6 +286,10 @@ class FoxtelService:
             await self.process_event(self.Event.StopPlay)
         return channel_names
 
+    async def dump_page(self, mode):
+        if self._foxtel is not None:
+            await self._foxtel.dump_page(mode)
+
     @property
     def state(self):
         return self._state

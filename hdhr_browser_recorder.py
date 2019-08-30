@@ -349,8 +349,7 @@ async def restart():
 
 @app.route('/dump/<cmd>')
 async def dump(cmd):
-    if app.provider_service._foxtel is not None:
-        await app.provider_service._foxtel.dump_page(cmd)
+    await app.provider_service.dump_page(cmd)
     return jsonify({
         'result': 'OK'
     })
