@@ -481,7 +481,7 @@ class Foxtel(object):
         pass
 
     async def _click_and_wait(self, button, wait_options=None):
-        await self.page.waitForSelector(button)
+        await self.page.waitForSelector(button, {"timeout": 5000})
         # await asyncio.gather(
         #     self.page.waitForNavigation(options=wait_options or {'waitUntil': 'networkidle0'}),
         #     self.page.click(button)
@@ -557,7 +557,7 @@ class Foxtel(object):
                 await self.page.click('span.fullscreen-toggle')
                 # await self._click_and_wait('span.fullscreen-toggle')
                 logger.info(f'Z {retries_left}')
-                v1 = await self.page.waitForSelector('#player > div > div.quarter-screen.fullscreen')
+                v1 = await self.page.waitForSelector('#player > div > div.quarter-screen.fullscreen', {"timeout": 5000})
                 v = await self.page.querySelector('#player > div > div.quarter-screen.fullscreen')
                 if (v is None) != (v1 is None):
                     logger.info('selector values are different')
@@ -592,29 +592,40 @@ class Foxtel(object):
                 await self._check_connection()
                 if self.state in [self.State.LIVETV, self.State.FSLIVETV]:
                     await self._stop_heartbeat()
-                    if not await self.page.querySelector(f'div.synopsis-container > div.title-image > img[alt="{channel}."'):
-                        # channel_selector = await self.page.xpath(f'//div[@class="channel-image"]/img[@alt="{channel}"]/../../..')
-                        channel_selector = await self.page.xpath(f'//div[@class="channel-image"]/img[@alt="{channel}"]/../../..')
-                        logger.info(f'channel change selector {channel_selector}')
-                        if channel_selector and channel_selector[0]:
-                            logger.info('clicking...')
-                            # await self._click_and_wait_element_handle(channel_selector[0])
-                            await channel_selector[0].click(delay=500)
-                            # await self.page.xpath(f'//div[@class="synopsis-container"]/div[@class=""]/img[alt=""]')
-                            await self.page.waitForSelector(f'div.synopsis-container > div.title-image > img[alt="{channel}."]')
-                            logger.info('detected changed channel')
-                            # await self.page.waitForSelector('#player > div > div.quarter-screen')
-                            # await self.page.waitForSelector('span.fullscreen-toggle')
-                            await asyncio.sleep(1)  # TODO: replace with current channel detection
+                    tries = 5
+                    while tries > 0:
+                        tries -= 1
+                        if not await self.page.querySelector(f'div.synopsis-container > div.title-image > img[alt="{channel}."'):
+                            # channel_selector = await self.page.xpath(f'//div[@class="channel-image"]/img[@alt="{channel}"]/../../..')
+                            channel_selector = await self.page.xpath(f'//div[@class="channel-image"]/img[@alt="{channel}"]/../../..')
+                            logger.info(f'channel change selector {channel_selector}')
+                            if channel_selector and channel_selector[0]:
+                                await asyncio.sleep(1)  # TODO: replace with current channel detection
+                                logger.info('clicking...')
+                                # await self._click_and_wait_element_handle(channel_selector[0])
+                                await channel_selector[0].click(delay=500)
+                                try:
+                                    # await self.page.xpath(f'//div[@class="synopsis-container"]/div[@class=""]/img[alt=""]')
+                                    await self.page.waitForSelector(f'div.synopsis-container > div.title-image > img[alt="{channel}."]',
+                                                                    {"timeout":3000})
+                                except Exception:
+                                    logger.info('failed to click, try again')
+                                    continue
+                                logger.info('detected changed channel')
+                                # await self.page.waitForSelector('#player > div > div.quarter-screen')
+                                # await self.page.waitForSelector('span.fullscreen-toggle')
+                                await asyncio.sleep(1)  # TODO: replace with current channel detection
+                            else:
+                                logger.info(f"Could not set channel '{channel}'")
                         else:
-                            logger.info(f"Could not set channel '{channel}'")
-                    else:
-                        logger.info(f"'{channel}' is already the current channel")
+                            logger.info(f"'{channel}' is already the current channel")
+                        break
                     self._start_heartbeat()
                 else:
                     logger.info(f"Could not set channel '{channel}' in state {self.state}")
             except Exception:
                 logger.exception('Exception in change_channel')
+                await self.dump_page('clicking')
 
     async def dump_page(self, mode):
         try:
