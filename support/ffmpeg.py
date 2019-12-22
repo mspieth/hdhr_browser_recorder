@@ -25,9 +25,11 @@ class FFMpeg:
     IPADDR = "192.168.1.1:55555"
     PRESET = "medium"
     BUFSIZE = 65535
+    # TIMESTAMP = '-use_wallclock_as_timestamps 1'
+    TIMESTAMP = ''
 
-    PROGRAM = f'ffmpeg -re -f x11grab -video_size 1280x720 -framerate {FRAMERATE} ' \
-        f'{THREAD_QUEUE} -i :99.0+0,0 -f alsa -ac 2 -ar 48000 -i plughw:Loopback,1,0 ' \
+    PROGRAM = f'ffmpeg {TIMESTAMP} -re -f x11grab -video_size 1280x720 -framerate {FRAMERATE} ' \
+        f'{THREAD_QUEUE} -i :99.0+0,0 {TIMESTAMP} -f alsa -ac 2 -ar 48000 -i plughw:Loopback,1,0 ' \
         f'{PIXFMT} -c:v libx264 -crf 21 {GOP} -preset {PRESET} -profile {PROFILE} {TUNE} ' \
         f'-bufsize 10000k {OUTPUT_FRAMERATE} -c:a aac -b:a 320k -vsync 1 -y -threads 0 ' \
         f'-flush_packets 0 -f mpegts udp://{IPADDR}?pkt_size=1316&buffer_size={BUFSIZE}'
